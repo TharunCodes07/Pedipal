@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
-  const username = "John";
-  const email = "john@example.com";
+  const [username, setUsername] = useState('John Doe');
+  const [email, setEmail] = useState('john@example.com');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        const storedEmail = await AsyncStorage.getItem('email');
+        if (storedUsername) setUsername(storedUsername);
+        if (storedEmail) setEmail(storedEmail);
+      } catch (error) {
+        console.error('Failed to fetch user data from AsyncStorage', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const blocks = [
     { title: 'Chat Bot', icon: 'chatbubble-ellipses', screen: 'Chatbot' },
@@ -18,7 +34,6 @@ const HomeScreen = () => {
   ];
 
   const handleLogout = () => {
-    // Implement logout logic here
     console.log('Logging out...');
     setProfileModalVisible(false);
   };

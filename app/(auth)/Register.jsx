@@ -4,11 +4,8 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {icons} from "../../constants";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {Link, router} from "expo-router";
-// import {createUserWithEmailAndPassword, sendEmailVerification, updateProfile} from "firebase/auth"
-// import {collection, query, where, getDocs, doc, setDoc} from "firebase/firestore"
-// import {auth, db} from "../../utility/firebaseConfig"
 import Loader from "../../components/Loader";
-
+import axios from "axios";
 
 const Register = () => {
     const [loading, setLoading] = useState(false)
@@ -19,21 +16,13 @@ const Register = () => {
         UserName: "",
     })
 
-    //Date picker
-    // const onchange = (event, selectedDate) => {
-    //     const currentDate = selectedDate || date
-    //     setShowDateOfBirth(Platform.OS === "ios")
-    //     setDate(currentDate)
-    //     setForm({...form, dateOfBirth: currentDate.toLocaleDateString()})
-    // }
-
     const [modalVisible, setModalVisible] = useState(false);
     const [isPregnant, setIsPregnant] = useState(null);
     const [pregnancyDate, setPregnancyDate] = useState(new Date());
     const [childBirthday, setChildBirthday] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
 
-    // Rename the original handleSubmit to handleRegistration
+
     async function handleRegistration() {
         if (!form.email || !form.password || !form.UserName ) {
             Alert.alert('Error', 'Please fill in all fields')
@@ -118,26 +107,31 @@ const Register = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleModalSubmit = async () => {
         setModalVisible(false);
         // Here you can use the collected data: isPregnant, pregnancyDate, childBirthday
         console.log('Is Pregnant:', isPregnant);
         console.log('Pregnancy Date:', isPregnant ? pregnancyDate.toISOString() : 'N/A');
         console.log('Child Birthday:', !isPregnant ? childBirthday.toISOString() : 'N/A');
-        
-        // Proceed with registration logic here
-        // ...
-    }
 
-    const handleModalSubmit = () => {
-        setModalVisible(false);
-        // Here you can use the collected data: isPregnant, pregnancyDate, childBirthday
-        console.log('Is Pregnant:', isPregnant);
-        console.log('Pregnancy Date:', isPregnant ? pregnancyDate.toISOString() : 'N/A');
-        console.log('Child Birthday:', !isPregnant ? childBirthday.toISOString() : 'N/A');
-        
-        // Proceed with registration logic here
-        handleRegistration(); // Call the renamed registration function
+        try {
+            const response = await axios.post('http://192.168.179.143:8000/auth/register', {
+                content_type: 'application/json',
+                email: form.email,
+                username: form.UserName,
+                password: form.password,
+                ispregnant: isPregnant,
+                pregnancydate: isPregnant ? pregnancyDate.toISOString() : null,
+                childbirthdate: !isPregnant ? childBirthday.toISOString() : null,
+            });
+            Alert.alert('Success', 'Registration successful');
+            router.replace('/Login');
+        } catch (err) {
+            const errorMessage = typeof err.response?.data?.detail === 'string'
+                ? err.response.data.detail
+                : err.message || 'Sign-In failed';
+            Alert.alert('Error', errorMessage);
+        } 
     }
 
     return (
@@ -154,21 +148,6 @@ const Register = () => {
                     <Text className="text-2xl font-pbold text-main">Welcome</Text>
                     <Text className="text-gray-200 text-lg">Register to get started</Text>
                 </View>
-
-                {/* <View
-                    className=" mt-6 rounded-3xl border-2 border-[#E7E7E7] flex-row items-center w-full h-[56px] px-4">
-                    <Image
-                        className="w-6 h-6 "
-                        source={icons.phone}
-                        resizeMode="contain"
-                    />
-                    <TextInput
-                        onChangeText={(e) => setForm({...form, phone: e})}
-                        className="flex-1 font-pmedium ml-2"
-                        placeholder="Phone number"
-                        keyboardType="numeric"
-                    />
-                </View> */}
 
                 <View
                     className=" mt-6 rounded-3xl border-2 border-[#E7E7E7] flex-row items-center w-full h-[56px] px-4">
@@ -217,48 +196,6 @@ const Register = () => {
                     />
                 </View>
 
-                {/* <View
-                    className=" mt-6 rounded-3xl border-2 border-[#E7E7E7] flex-row items-center w-full h-[56px] px-4">
-                    <Image
-                        className="w-6 h-6 "
-                        source={icons.user}
-                        resizeMode="contain"
-                    />
-                    <TextInput
-                        onChangeText={(e) => setForm({...form, lastName: e})}
-                        className="flex-1 font-pmedium ml-2"
-                        placeholder="Last Name"
-                    />
-                </View> */}
-
-                {/*Date picker field start*/}
-                {/* <TouchableOpacity
-                    onPress={() => setShowDateOfBirth(true)}
-                    className=" mt-6 rounded-3xl border-2 border-[#E7E7E7] flex-row items-center w-full h-[56px] px-4">
-
-                    <Image
-                        resizeMode="contain"
-                        className="w-6 h-6"
-                        source={icons.calendar}/>
-
-                    <Text className="flex-1 text-gray-300 ml-2">
-                        {date.toLocaleDateString()} Date Of Birth
-                    </Text>
-                </TouchableOpacity>
-                {showDateOfBirth && (
-                    <DateTimePicker
-                        mode="date"
-                        value={date}
-                        display="default"
-                        onChange={onchange}
-                    />
-                )} */}
-
-                {/* <View className="flex-row items-center w-full h-[56px] px-4">
-                    <Checkbox value={checked} onValueChange={ToggleTerms}/>
-                    <Text className="ml-3">I agree to the terms and conditions</Text>
-                </View> */}
-
                 <TouchableOpacity
                     onPress={handleRegisterClick}
                     className="bg-main mt-5 flex-row p-3 rounded-full items-center justify-center"
@@ -273,26 +210,39 @@ const Register = () => {
                     onRequestClose={() => setModalVisible(false)}
                 >
                     <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-                        <View className="bg-white p-5 rounded-lg w-4/5">
+                        <View className="bg-white p-6 rounded-2xl w-11/12 max-w-md">
+                            <Text className="text-2xl font-bold text-main mb-6 text-center">
+                                {isPregnant === null ? "Pregnancy Information" : (isPregnant ? "Pregnancy Date" : "Child's Birthday")}
+                            </Text>
+
                             {isPregnant === null ? (
                                 <>
-                                    <Text className="text-lg mb-4">Are you pregnant?</Text>
+                                    <Text className="text-lg mb-4 text-center">Are you pregnant?</Text>
                                     <View className="flex-row justify-around">
-                                        <TouchableOpacity onPress={() => setIsPregnant(true)} className="bg-main p-2 rounded">
-                                            <Text className="text-white">Yes</Text>
+                                        <TouchableOpacity 
+                                            onPress={() => setIsPregnant(true)} 
+                                            className="bg-main py-3 px-6 rounded-full"
+                                        >
+                                            <Text className="text-white text-lg font-semibold">Yes</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => setIsPregnant(false)} className="bg-main p-2 rounded">
-                                            <Text className="text-white">No</Text>
+                                        <TouchableOpacity 
+                                            onPress={() => setIsPregnant(false)} 
+                                            className="bg-gray-300 py-3 px-6 rounded-full"
+                                        >
+                                            <Text className="text-gray-700 text-lg font-semibold">No</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </>
                             ) : (
                                 <>
-                                    <Text className="text-lg mb-4">
-                                        {isPregnant ? "What's your pregnancy date?" : "What's your child's birthday?"}
+                                    <Text className="text-lg mb-4 text-center">
+                                        {isPregnant ? "Select your pregnancy date" : "Select your child's birthday"}
                                     </Text>
-                                    <TouchableOpacity onPress={() => setShowDatePicker(true)} className="bg-gray-200 p-2 rounded">
-                                        <Text>
+                                    <TouchableOpacity 
+                                        onPress={() => setShowDatePicker(true)} 
+                                        className="bg-gray-100 p-4 rounded-lg mb-4"
+                                    >
+                                        <Text className="text-lg text-center text-gray-700">
                                             {isPregnant
                                                 ? pregnancyDate.toLocaleDateString()
                                                 : childBirthday.toLocaleDateString()}
@@ -306,11 +256,21 @@ const Register = () => {
                                             onChange={handleDateChange}
                                         />
                                     )}
-                                    <TouchableOpacity onPress={handleModalSubmit} className="bg-main mt-4 p-2 rounded">
-                                        <Text className="text-white text-center">Submit</Text>
+                                    <TouchableOpacity 
+                                        onPress={handleModalSubmit} 
+                                        className="bg-main py-3 px-6 rounded-full"
+                                    >
+                                        <Text className="text-white text-lg font-semibold text-center">Submit</Text>
                                     </TouchableOpacity>
                                 </>
                             )}
+
+                            <TouchableOpacity 
+                                onPress={() => setModalVisible(false)}
+                                className="absolute top-2 right-2 p-2"
+                            >
+                                <Text className="text-gray-500 text-xl">&times;</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
