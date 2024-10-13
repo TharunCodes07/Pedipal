@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {router} from 'expo-router';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,9 +34,17 @@ const HomeScreen = () => {
     { title: 'Camera', icon: 'camera', screen: 'Camera' },
   ];
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-    setProfileModalVisible(false);
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('username');
+      await AsyncStorage.removeItem('email');
+      await AsyncStorage.removeItem('isLoggedIn');
+      console.log('Logging out...');
+      setProfileModalVisible(false);
+      router.replace('/Login'); // Assuming you have a Login screen to navigate to
+    } catch (error) {
+      console.error('Failed to logout', error);
+    }
   };
 
   return (
