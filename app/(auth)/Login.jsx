@@ -15,7 +15,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.179.143:8000/auth/login', { // Replace 192.168.1.x with your local IP address
+      const response = await axios.post('http://192.168.122.143:8000/auth/login', { 
         content_type: 'application/json',
         username: form.email,
         password: form.password,

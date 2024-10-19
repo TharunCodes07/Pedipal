@@ -115,7 +115,7 @@ const Register = () => {
         console.log('Child Birthday:', !isPregnant ? childBirthday.toISOString() : 'N/A');
 
         try {
-            const response = await axios.post('http://192.168.179.143:8000/auth/register', {
+            const response = await axios.post('http://192.168.122.143:8000/auth/register', {
                 content_type: 'application/json',
                 email: form.email,
                 username: form.UserName,
