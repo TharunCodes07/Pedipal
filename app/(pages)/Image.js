@@ -1,62 +1,63 @@
-const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { GoogleAIFileManager } = require('@google/generative-ai/server'); 
-const fs = require('fs');
-require('dotenv').config();
+import Constants from 'expo-constants';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from 'react';
+import { Button, Image, Text, View } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
-const app = express();
-app.use(express.json());
-const cors = require('cors');
-app.use(cors()); // Enable CORS for all routes
+let API_KEY = "AIzaSyA-vL2SijziXK8aaXJanpPKddtKMChL7aQ";
 
-app.use(express.json({ limit: '5mb' })); // Adjust this value as needed
-app.use(express.urlencoded({ limit: '5mb', extended: true })); // Adjust this value as needed
+export default function App() {
+  const [image, setImage] = useState(null);
+  const [response, setResponse] = useState(null);
 
-app.post('/upload-and-generate', async (req, res) => {
-  const { image, apiKey } = req.body;
-  const mimeType = 'image/jpeg';
-
-  if (!image || !apiKey) {
-    return res.status(400).json({ error: 'Invalid request' });
-  }
-
-  // Decode base64 image and save it locally
-  const buffer = Buffer.from(image, 'base64');
-  fs.mkdirSync('./uploads', { recursive: true });
-  const filePath = './uploads/image.jpg';
-  fs.writeFileSync(filePath, buffer);
-
-  try {
-    const fileManager = new GoogleAIFileManager(apiKey);
-
-    // Upload the file to Google Gemini
-    const uploadResult = await fileManager.uploadFile(filePath, {
-      mimeType: mimeType ,
-      displayName: 'Uploaded Image',
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
-    // Generate content based on the uploaded image
-    const result = await model.generateContent([
-      'Tell me about this image.',
-      {
-        fileData: {
-          fileUri: uploadResult.file.uri,
-          mimeType: uploadResult.file.mimeType,
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadAndGenerateContent = async () => {
+    if (!image) {
+      alert('Please select an image first!');
+      return;
+    }
+    let base64Image = await FileSystem.readAsStringAsync(image, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+    const backendUrl = 'http://192.168.74.143:3000/upload-and-generate'; // Replace with your backend URL
+    console.log("API_KEY", API_KEY);
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      },
-    ]);
+        body: JSON.stringify({ image: base64Image, apiKey: API_KEY }),
+      });
 
-    res.json({ aiResponse: result.response.text() });
-  } catch (error) {
-    console.error('Error in AI content generation:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+      const result = await response.json();
+      console.log("result", result);
+      setResponse(result.aiResponse);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload the image or generate content.');
+    }
+  };
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+      <Button title="Upload Image to Gemini" onPress={uploadAndGenerateContent} />
+      {response && <Text>AI Response: {response}</Text>}
+    </View>
+  );
+}
