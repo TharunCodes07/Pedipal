@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {router} from 'expo-router';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -28,10 +29,10 @@ const HomeScreen = () => {
   }, []);
 
   const blocks = [
-    { title: 'Chat Bot', icon: 'chatbubble-ellipses', screen: 'pages/Chatbot' },
-    { title: 'Food', icon: 'restaurant', screen: 'Food' },
-    { title: 'Graph', icon: 'stats-chart', screen: 'Graph' },
-    { title: 'Camera', icon: 'camera', screen: 'Camera' },
+    { title: 'Chat Bot', icon: 'chatbubble-ellipses', screen: '/Chatbot' },
+    { title: 'Food', icon: 'restaurant', screen: '/Food' },
+    { title: 'Graph', icon: 'stats-chart', screen: '/Graph' },
+    { title: 'Camera', icon: 'camera', screen: '/Camera' },
   ];
 
   const handleLogout = async () => {
@@ -41,78 +42,87 @@ const HomeScreen = () => {
       await AsyncStorage.removeItem('isLoggedIn');
       console.log('Logging out...');
       setProfileModalVisible(false);
-      router.replace('/Login'); // Assuming you have a Login screen to navigate to
+      router.replace('/Login'); 
     } catch (error) {
       console.error('Failed to logout', error);
     }
   };
 
   return (
-    <LinearGradient
-      colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-      style={styles.container}
-    >
-      <TouchableOpacity 
-        style={styles.profileIcon} 
-        onPress={() => setProfileModalVisible(true)}
-      >
-        <Ionicons name="person-circle" size={40} color="white" />
-      </TouchableOpacity>
-      <View style={styles.contentContainer}>
-        <Text style={styles.welcomeText}>Welcome, {username}</Text>
-        <View style={styles.blocksContainer}>
-          {blocks.map((block, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.block}
-              onPress={() => navigation.navigate(block.screen)}
-            >
-              <LinearGradient
-                colors={['rgba(255,255,255,0.8)', 'rgba(255,255,255,0.6)']}
-                style={styles.blockGradient}
-              >
-                <Ionicons name={block.icon} size={40} color="#FF69B4" />
-                <Text style={styles.blockText}>{block.title}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isProfileModalVisible}
-        onRequestClose={() => setProfileModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setProfileModalVisible(false)}
-            >
-              <Ionicons name="close" size={24} color="#FF69B4" />
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>Profile</Text>
-            <Text style={styles.modalText}>Username: {username}</Text>
-            <Text style={styles.modalText}>Email: {email}</Text>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={styles.logoutButtonText}>Logout</Text>
-            </TouchableOpacity>
+    <>
+      <StatusBar translucent backgroundColor="transparent" />
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient
+          colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
+          style={styles.container}
+        >
+          <TouchableOpacity 
+            style={styles.profileIcon} 
+            onPress={() => setProfileModalVisible(true)}
+          >
+            <Ionicons name="person-circle" size={40} color="white" />
+          </TouchableOpacity>
+          <View style={styles.contentContainer}>
+            <Text style={styles.welcomeText}>Welcome, {username}</Text>
+            <View style={styles.blocksContainer}>
+              {blocks.map((block, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.block}
+                  onPress={() => router.push(block.screen)}
+                >
+                  <LinearGradient
+                    colors={['rgba(255,255,255,0.8)', 'rgba(255,255,255,0.6)']}
+                    style={styles.blockGradient}
+                  >
+                    <Ionicons name={block.icon} size={40} color="#FF69B4" />
+                    <Text style={styles.blockText}>{block.title}</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-      </Modal>
-    </LinearGradient>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isProfileModalVisible}
+            onRequestClose={() => setProfileModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setProfileModalVisible(false)}
+                >
+                  <Ionicons name="close" size={24} color="#FF69B4" />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Profile</Text>
+                <Text style={styles.modalText}>Username: {username}</Text>
+                <Text style={styles.modalText}>Email: {email}</Text>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                  <Text style={styles.logoutButtonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </LinearGradient>
+      </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FF69B4', // Match the start color of your gradient
+  },
   container: {
     flex: 1,
     padding: 20,
   },
   profileIcon: {
     position: 'absolute',
-    top: 20,
+    top: 10, // Adjusted from 20 to 10
     right: 20,
     zIndex: 1,
   },
