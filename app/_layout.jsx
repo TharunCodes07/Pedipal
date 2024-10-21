@@ -12,7 +12,6 @@ export default function RootLayout() {
         "SF-Bold": require("../assets/fonts/SfBold.otf"),
         "SF-Semi-Bold": require("../assets/fonts/SfSemiBold.otf"),
         "SF-Medium": require("../assets/fonts/SfMedium.otf"),
-        "SF-Regular": require("../assets/fonts/SfRegular.otf"),
     });
 
     const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -51,6 +50,8 @@ export default function RootLayout() {
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(home)" options={{ headerShown: false }} />
             <Stack.Screen name="(camera)" options={{ headerShown: false }} />
+            <Stack.Screen name="(graph)" options={{ headerShown: false }} />    
+            <Stack.Screen name="(chat)" options={{ headerShown: false }} />
         </Stack>
     );
 }

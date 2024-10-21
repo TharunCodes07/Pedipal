@@ -109,13 +109,9 @@ const Register = () => {
 
     const handleModalSubmit = async () => {
         setModalVisible(false);
-        // Here you can use the collected data: isPregnant, pregnancyDate, childBirthday
-        console.log('Is Pregnant:', isPregnant);
-        console.log('Pregnancy Date:', isPregnant ? pregnancyDate.toISOString() : 'N/A');
-        console.log('Child Birthday:', !isPregnant ? childBirthday.toISOString() : 'N/A');
-
+        console.log('Submitting registration data...');
         try {
-            const response = await axios.post('http://192.168.40.222:8000/auth/register', {
+            const response = await axios.post('http://192.168.222.222:8000/auth/register', {
                 content_type: 'application/json',
                 email: form.email,
                 username: form.UserName,
@@ -124,12 +120,22 @@ const Register = () => {
                 pregnancydate: isPregnant ? pregnancyDate.toISOString() : null,
                 childbirthdate: !isPregnant ? childBirthday.toISOString() : null,
             });
-            Alert.alert('Success', 'Registration successful');
+            console.log('Registration response:', response.data);
+
+            // After successful registration, create the taste graph
+            console.log('Creating taste graph...');
+            const graphResponse = await axios.post('http://192.168.40.222:3000/register', {
+                gmail: form.email
+            });
+            console.log('Taste graph creation response:', graphResponse.data);
+
+            Alert.alert('Success', 'Registration successful and taste graph created');
             router.replace('/Login');
         } catch (err) {
+            console.error('Registration error:', err);
             const errorMessage = typeof err.response?.data?.detail === 'string'
                 ? err.response.data.detail
-                : err.message || 'Sign-In failed';
+                : err.message || 'Registration failed';
             Alert.alert('Error', errorMessage);
         } 
     }

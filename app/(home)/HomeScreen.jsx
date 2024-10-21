@@ -31,7 +31,7 @@ const HomeScreen = () => {
   const blocks = [
     { title: 'Chat Bot', icon: 'chatbubble-ellipses', screen: '/Chatbot' },
     { title: 'Food', icon: 'restaurant', screen: '/Food' },
-    { title: 'Graph', icon: 'stats-chart', screen: '/Graph' },
+    { title: 'Graph', icon: 'stats-chart', screen: '/graph' },
     { title: 'Camera', icon: 'camera', screen: '/Camera' },
   ];
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, StatusBar, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,6 +13,8 @@ let API_KEY = "AIzaSyA-vL2SijziXK8aaXJanpPKddtKMChL7aQ";
 
 const Camera = () => {
   const [image, setImage] = useState(null);
+  const [foodName, setFoodName] = useState('');
+  const [foodQuantity, setFoodQuantity] = useState('');
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -83,9 +85,12 @@ const Camera = () => {
       alert('Please select or take an image first!');
       return;
     }
+    if (!foodName || !foodQuantity) {
+      alert('Please enter both food name and quantity!');
+      return;
+    }
     setLoading(true);
     try {
-      // Resize the image to 4.9 megabits
       const targetSizeInBits = 4.9 * 1024 * 1024; // 4.9 megabits
       const resizedImageUri = await resizeImage(image, targetSizeInBits);
 
@@ -93,17 +98,21 @@ const Camera = () => {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Log the final image size
       const finalFileInfo = await FileSystem.getInfoAsync(resizedImageUri, { size: true });
       console.log(`Final image size: ${finalFileInfo.size / 1024 / 1024} MB`);
 
-      const backendUrl = 'http://192.168.40.222:3000/upload-and-generate';
+      const backendUrl = 'http://192.168.222.222:3000/upload-and-generate';
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: base64Image, apiKey: API_KEY }),
+        body: JSON.stringify({ 
+          image: base64Image, 
+          apiKey: API_KEY,
+          foodName,
+          foodQuantity
+        }),
       });
 
       const result = await response.json();
@@ -114,6 +123,20 @@ const Camera = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderFormattedText = (text) => {
+    const parts = text.split(/(\*\*.*?\*\*)/);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return (
+          <Text key={index} style={styles.boldText}>
+            {part.slice(2, -2)}
+          </Text>
+        );
+      }
+      return <Text key={index}>{part}</Text>;
+    });
   };
 
   return (
@@ -133,7 +156,7 @@ const Camera = () => {
             <Ionicons name="camera" size={24} color="white" />
           </TouchableOpacity>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text style={styles.title}>Image Analysis</Text>
+            <Text style={styles.title}>Food Analysis</Text>
             <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
               <Ionicons name="image" size={24} color="white" />
               <Text style={styles.buttonText}>Pick an image</Text>
@@ -143,18 +166,32 @@ const Camera = () => {
                 <Image source={{ uri: image }} style={styles.image} />
               </View>
             )}
+            <TextInput
+              style={styles.input}
+              placeholder="Food Name"
+              value={foodName}
+              onChangeText={setFoodName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Quantity (e.g., 1 cup, 200g)"
+              value={foodQuantity}
+              onChangeText={setFoodQuantity}
+            />
             <TouchableOpacity 
-              style={[styles.uploadButton, !image && styles.disabledButton]} 
+              style={[styles.uploadButton, (!image || !foodName || !foodQuantity) && styles.disabledButton]} 
               onPress={uploadAndGenerateContent}
-              disabled={!image || loading}
+              disabled={!image || !foodName || !foodQuantity || loading}
             >
               <Ionicons name="cloud-upload" size={24} color="white" />
-              <Text style={styles.buttonText}>Analyze Image</Text>
+              <Text style={styles.buttonText}>Analyze Food</Text>
             </TouchableOpacity>
             {response && (
               <View style={styles.responseContainer}>
                 <Text style={styles.responseTitle}>AI Analysis:</Text>
-                <Text style={styles.responseText}>{response}</Text>
+                <Text style={styles.responseText}>
+                  {renderFormattedText(response)}
+                </Text>
               </View>
             )}
           </ScrollView>
@@ -250,6 +287,17 @@ const styles = StyleSheet.create({
   responseText: {
     fontSize: 16,
     color: '#333',
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  input: {
+    backgroundColor: 'white',
+    borderRadius: 25,
+    padding: 12,
+    marginBottom: 10,
+    width: '80%',
+    fontSize: 16,
   },
 });
 

@@ -15,7 +15,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.40.222:8000/auth/login', { 
+      const response = await axios.post('http://192.168.222.222:8000/auth/login', { 
         content_type: 'application/json',
         username: form.email,
         password: form.password,
