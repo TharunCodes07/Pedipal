@@ -22,7 +22,7 @@ class QueryRequest(BaseModel):
 @app.on_event("startup")
 async def startup_event():
     # Load and process the document on startup
-    data = load_document("/Users/sarveshwar/Documents/projects/PedoPal-API/After delivery.pdf")
+    data = load_document("D:\Coding\Python\RAG\ValueHealth\Month 06.pdf")
     if data is None:
         raise HTTPException(status_code=500, detail="Failed to load document")
     final_data = clean(data)
@@ -48,4 +48,4 @@ async def get_response(request: QueryRequest):
     return {"response": response}
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app,host = "0.0.0.0", port=8001)
+    uvicorn.run(app,host = "0.0.0.0", port=8000)
