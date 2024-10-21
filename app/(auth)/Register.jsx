@@ -6,6 +6,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import {Link, router} from "expo-router";
 import Loader from "../../components/Loader";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Register = () => {
     const [loading, setLoading] = useState(false)
@@ -128,7 +129,18 @@ const Register = () => {
                 gmail: form.email
             });
             console.log('Taste graph creation response:', graphResponse.data);
-
+            const calculateAge = (birthday) => {
+                const today = new Date();
+                const birthDate = new Date(birthday);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            };
+            const age = calculateAge(childBirthday);
+            AsyncStorage.setItem('user_details', JSON.stringify({'email': form.email, 'age': age}));
             Alert.alert('Success', 'Registration successful and taste graph created');
             router.replace('/Login');
         } catch (err) {

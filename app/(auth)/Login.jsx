@@ -6,6 +6,7 @@ import { Link, router } from 'expo-router';
 import axios from 'axios';
 import Loader from '../../components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { query } from '@firebase/firestore';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -20,11 +21,18 @@ const Login = () => {
         username: form.email,
         password: form.password,
       });
+      const taste_weights = await axios.get('http://192.168.106.143:3000/get-taste-weights', {
+        params: { gmail: form.email },
+      });
+      console.log('Taste weights:', taste_weights.data);
 
-      if (response && response.data) {
+
+      if (response) {
         Alert.alert('Success', 'Sign-In successful');
         await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
         await AsyncStorage.setItem('email', form.email);
+        console.log('response', response);
+        console.log('user', response.user);
         router.replace('/HomeScreen');
       } else {
         throw new Error('Invalid response from server');
