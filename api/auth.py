@@ -63,4 +63,5 @@ async def login(form_data: loginUser):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
-    return {"message": "Login successful", "user": user}
+    
+    return {"message": "Login successful"}
