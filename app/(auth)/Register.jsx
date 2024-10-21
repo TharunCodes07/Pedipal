@@ -111,7 +111,7 @@ const Register = () => {
         setModalVisible(false);
         console.log('Submitting registration data...');
         try {
-            const response = await axios.post('http://192.168.106.143:8000/auth/register', {
+            const response = await axios.post('http://192.168.222.222:8000/auth/register', {
                 content_type: 'application/json',
                 email: form.email,
                 username: form.UserName,
@@ -124,7 +124,7 @@ const Register = () => {
 
             // After successful registration, create the taste graph
             console.log('Creating taste graph...');
-            const graphResponse = await axios.post('http://192.168.40.222:3000/register', {
+            const graphResponse = await axios.post('http://192.168.222.222:3000/register', {
                 gmail: form.email
             });
             console.log('Taste graph creation response:', graphResponse.data);

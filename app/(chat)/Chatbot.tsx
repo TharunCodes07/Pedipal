@@ -1,6 +1,9 @@
-import React, { useEffect } from 'react';
-import { TouchableOpacity, StatusBar, ScrollView, SafeAreaView,Platform, Text, TextInput, View, StyleSheet } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { TouchableOpacity, StatusBar, ScrollView, SafeAreaView, Text, TextInput, View, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoadingDots from './LoadingDots';
 
 enum Role {
     User,
@@ -13,17 +16,33 @@ type Chat = {
 }
 
 const Chatbot = () => {
-    const [chats, setChats] = React.useState<Chat[]>([{ role: Role.Bot, text: "Hello! How can I help you?" }]);
-    const [text, setText] = React.useState('');
-    const [waitingForBot, setWaitingForBot] = React.useState(false); // to prevent multiple bot responses
+    const [chats, setChats] = useState<Chat[]>([{ role: Role.Bot, text: "Hello! How can I help you?" }]);
+    const [text, setText] = useState('');
+    const [waitingForBot, setWaitingForBot] = useState(false);
+    const [username, setUsername] = useState('User');
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+        const fetchUsername = async () => {
+            try {
+                const storedUsername = await AsyncStorage.getItem('username');
+                if (storedUsername) {
+                    setUsername(storedUsername);
+                }
+            } catch (error) {
+                console.error('Failed to fetch username from AsyncStorage', error);
+            }
+        };
+
+        fetchUsername();
+    }, []);
 
     const fetchData = async () => {
         const query_text = chats[chats.length - 1].text;
-        const response = await fetch('http://192.168.106.143:8001/query', {
+        const response = await fetch('http://192.168.222.222:8001/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-                
             },
             body: JSON.stringify({ query: query_text })
         });
@@ -43,7 +62,7 @@ const Chatbot = () => {
         if (!text) return;
         userResponse(text);
         setWaitingForBot(true);
-        setText(''); // Clear input after sending
+        setText('');
     };
 
     useEffect(() => {
@@ -51,54 +70,84 @@ const Chatbot = () => {
             if (waitingForBot) {
                 const data = await fetchData();
                 botResponse(data);
-                setWaitingForBot(false); // reset the flag
+                setWaitingForBot(false);
             }
         };
 
         handleBotResponse();
     }, [waitingForBot]);
 
-    return (
-        <SafeAreaView style ={styles.container}>
-        <View style={styles.container}>
-            <ScrollView
-                contentContainerStyle={styles.scrollView}
-                scrollsToTop={false}
-                keyboardShouldPersistTaps="handled"
-            >
-                {chats.map((chat, index) => (
-                    <View key={index} style={[styles.chatRow, chat.role === Role.User ? styles.userChat : styles.botChat]}>
-                        <View style={styles.chatBubble}>
-                            <Text style={styles.chatText}>{chat.text}</Text>
-                        </View>
-                    </View>
-                ))}
-            </ScrollView>
+    useEffect(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, [chats]);
 
-            <View style={styles.inputContainer}>
-                <TextInput
-                    value={text}
-                    onChangeText={(text) => { setText(text) }}
-                    style={styles.textInput}
-                    placeholder="Type your message..."
-                />
-                <TouchableOpacity onPress={onSend} style={styles.sendButton}>
-                    <Ionicons name="send" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
-        </View>
+    return (
+        <SafeAreaView style={styles.safeArea}>
+            <StatusBar translucent backgroundColor="transparent" />
+            <LinearGradient
+                colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
+                style={styles.container}
+            >
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>Hello, {username}</Text>
+                </View>
+                <ScrollView
+                    ref={scrollViewRef}
+                    contentContainerStyle={styles.scrollView}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {chats.map((chat, index) => (
+                        <View key={index} style={[styles.chatRow, chat.role === Role.User ? styles.userChat : styles.botChat]}>
+                            <View style={styles.chatBubble}>
+                                <Text style={styles.chatText}>{chat.text}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </ScrollView>
+
+                {waitingForBot && <LoadingDots />}
+
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        value={text}
+                        onChangeText={(text) => { setText(text) }}
+                        style={styles.textInput}
+                        placeholder="Type your message..."
+                        placeholderTextColor="#999"
+                    />
+                    <TouchableOpacity onPress={onSend} style={styles.sendButton}>
+                        <Ionicons name="send" size={24} color="white" />
+                    </TouchableOpacity>
+                </View>
+            </LinearGradient>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#FF69B4',
+    },
     container: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight || 0,
-
+    },
+    header: {
+        paddingTop: 40,
+        paddingBottom: 20,
+        paddingHorizontal: 20,
+        alignItems: 'flex-start',
+    },
+    headerText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'white',
+        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
     },
     scrollView: {
-        paddingBottom: 10,
+        paddingVertical: 20,
         paddingHorizontal: 10,
     },
     chatRow: {
@@ -112,13 +161,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     chatBubble: {
-        backgroundColor: '#007BFF', // Change to your desired color
         padding: 10,
-        borderRadius: 5,
+        borderRadius: 15,
         maxWidth: '80%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
     chatText: {
-        color: 'white',
+        fontSize: 16,
+        color: '#333',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -126,20 +176,21 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 5,
         paddingBottom: 10,
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderTopWidth: 1,
         borderTopColor: '#ccc',
     },
     textInput: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#fff',
         height: 45,
         borderRadius: 20,
         paddingHorizontal: 15,
         flexGrow: 1,
         marginRight: 10,
+        color: '#333',
     },
     sendButton: {
-        backgroundColor: '#007BFF', // Change to your desired color
+        backgroundColor: '#FF69B4',
         borderRadius: 20,
         paddingVertical: 8,
         paddingHorizontal: 12,
