@@ -20,8 +20,7 @@ module.exports = {
       fontFamily: {
         pbold: ["SF-Bold", "sans-serif"],
         psemibold: ["SF-Semi-Bold", "sans-serif"],
-        pmedium: ["SF-Medium", "sans-serif"],
-        pregular: ["SF-Regular", "sans-serif"],
+        pmedium: ["SF-Medium", "sans-serif"]
       },
     },
   },

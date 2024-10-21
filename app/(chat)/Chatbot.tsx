@@ -18,15 +18,17 @@ const Chatbot = () => {
     const [waitingForBot, setWaitingForBot] = React.useState(false); // to prevent multiple bot responses
 
     const fetchData = async () => {
-        const response = await fetch('http://192.168.222.222:8001/query', {
+        const query_text = chats[chats.length - 1].text;
+        const response = await fetch('http://192.168.106.143:8001/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
+                
             },
-            body: JSON.stringify({ query: text })
+            body: JSON.stringify({ query: query_text })
         });
         const data = await response.json();
-        return data.message;
+        return data.response;
     };
 
     const userResponse = (text: string) => {

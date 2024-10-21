@@ -111,7 +111,7 @@ const Register = () => {
         setModalVisible(false);
         console.log('Submitting registration data...');
         try {
-            const response = await axios.post('http://192.168.222.222:8000/auth/register', {
+            const response = await axios.post('http://192.168.106.143:8000/auth/register', {
                 content_type: 'application/json',
                 email: form.email,
                 username: form.UserName,
