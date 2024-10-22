@@ -97,7 +97,7 @@ async def search_result(query, collection, n_result):
     return results
 
 def convo_template(llm):
-    template = '''Answer the current question. You may use the information given in the context if necessary.
+    template = '''Answer the question. A context has been provided which may or may not be helpful, utilise it to gather futher information if it is useful.
 
     Question: {query}
 

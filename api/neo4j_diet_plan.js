@@ -32,22 +32,21 @@ async function create_user_taste_graph(conn, gmail) {
     await conn.query(create_user_query, { gmail });
 }
 
-async function update_taste_weight(conn, gmail, taste_category, weight) {
+async function update_taste_weight(conn, gmail, taste_category, review_score) {
+    weight_change = review_score - 2.5 
     const update_weight_query = `
     MATCH (u:User {gmail: $gmail})-[r:LIKES]->(t:Taste {name: $taste_category})
     SET r.weight = $weight
     `;
-    await conn.query(update_weight_query, { gmail, taste_category, weight });
+    await conn.query(update_weight_query, { gmail, taste_category, weight_change });
 }
 
 async function get_user_taste_weights(conn, gmail) {
-    console.log('Fetching taste weights for:', gmail);
     const get_weights_query = `
     MATCH (u:User {gmail: $gmail})-[r:LIKES]->(t:Taste)
     RETURN t.name AS taste, r.weight AS weight
     `;
     const result = await conn.query(get_weights_query, { gmail });
-    console.log('Query result:', result);
     return result;
 }
 

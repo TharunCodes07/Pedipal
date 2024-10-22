@@ -20,42 +20,56 @@ const Chatbot = () => {
     const [text, setText] = useState('');
     const [waitingForBot, setWaitingForBot] = useState(false);
     const [username, setUsername] = useState('User');
+    const [isPregnant, setIsPregnant] = useState<boolean | null>(null);
+    const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
+    const [pregnancyDate, setPregnancyDate] = useState<string | null>(null);
     const scrollViewRef = useRef<ScrollView>(null);
 
     useEffect(() => {
-        const fetchUsername = async () => {
+        const fetchUserData = async () => {
             try {
                 const storedUsername = await AsyncStorage.getItem('username');
-                if (storedUsername) {
-                    setUsername(storedUsername);
+                const storedIsPregnant = await AsyncStorage.getItem('pregnancy');
+                const storedDateOfBirth = await AsyncStorage.getItem('dob');
+
+                if (storedUsername) setUsername(storedUsername);
+                if (storedIsPregnant) setIsPregnant(storedIsPregnant === 'true');
+                if (storedDateOfBirth) {
+                    const date = new Date(storedDateOfBirth);
+                    setDateOfBirth(date.toISOString().split('T')[0]);
+                    if (storedIsPregnant === 'true') {
+                        setPregnancyDate(date.toISOString().split('T')[0]);
+                    }
                 }
             } catch (error) {
-                console.error('Failed to fetch username from AsyncStorage', error);
+                console.error('Failed to fetch user data from AsyncStorage', error);
             }
         };
 
-        fetchUsername();
+        fetchUserData();
     }, []);
 
     const fetchData = async () => {
-        const calculateAge = (birthday) => {
-            const today = new Date();
-            const birthDate = new Date(birthday);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDifference = today.getMonth() - birthDate.getMonth();
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        };
         const query_text = chats[chats.length - 1].text;
+        const requestBody = {
+            query: query_text,
+            isPregnant: isPregnant,
+            pregnancyDate: isPregnant ? pregnancyDate : null,
+            childBirthday: !isPregnant ? dateOfBirth : null
+        };
+        console.log('Request body:', JSON.stringify(requestBody, null, 2));
         const response = await fetch('http://192.168.222.222:8004/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query: query_text })
+            body: JSON.stringify(requestBody)
         });
+        if (!response.ok) {
+            console.error('Response status:', response.status);
+            console.error('Response text:', await response.text());
+            throw new Error('Network response was not ok');
+        }
         const data = await response.json();
         return data.response;
     };
@@ -78,9 +92,15 @@ const Chatbot = () => {
     useEffect(() => {
         const handleBotResponse = async () => {
             if (waitingForBot) {
-                const data = await fetchData();
-                botResponse(data);
-                setWaitingForBot(false);
+                try {
+                    const data = await fetchData();
+                    botResponse(data);
+                } catch (error) {
+                    console.error('Error fetching bot response:', error);
+                    botResponse("I'm sorry, I encountered an error. Please try again.");
+                } finally {
+                    setWaitingForBot(false);
+                }
             }
         };
 
@@ -118,13 +138,18 @@ const Chatbot = () => {
                 {waitingForBot && <LoadingDots />}
 
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        value={text}
-                        onChangeText={(text) => { setText(text) }}
-                        style={styles.textInput}
-                        placeholder="Type your message..."
-                        placeholderTextColor="#999"
-                    />
+                    <View style={styles.inputWrapper}>
+                        <ScrollView>
+                            <TextInput
+                                value={text}
+                                onChangeText={(text) => { setText(text) }}
+                                style={styles.textInput}
+                                placeholder="Type your message..."
+                                placeholderTextColor="#999"
+                                multiline
+                            />
+                        </ScrollView>
+                    </View>
                     <TouchableOpacity onPress={onSend} style={styles.sendButton}>
                         <Ionicons name="send" size={24} color="white" />
                     </TouchableOpacity>
@@ -190,20 +215,22 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#ccc',
     },
+    inputWrapper: {
+        flex: 1,
+        marginRight: 10,
+        maxHeight: 100, // Limit the height of the input
+    },
     textInput: {
         backgroundColor: '#fff',
-        height: 45,
         borderRadius: 20,
         paddingHorizontal: 15,
-        flexGrow: 1,
-        marginRight: 10,
+        paddingVertical: 10,
         color: '#333',
     },
     sendButton: {
         backgroundColor: '#FF69B4',
         borderRadius: 20,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
+        padding: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },

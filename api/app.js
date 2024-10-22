@@ -9,8 +9,8 @@ app.use(express.json());
 const cors = require('cors');
 app.use(cors()); // Enable CORS for all routes
 
-app.use(express.json({ limit: '5mb' })); // Adjust this value as needed
-app.use(express.urlencoded({ limit: '5mb', extended: true })); // Adjust this value as needed
+app.use(express.json({ limit: '10mb' })); // Adjust this value as needed
+app.use(express.urlencoded({ limit: '10mb', extended: true })); // Adjust this value as needed
 
 const { Neo4jConnection, create_user_taste_graph, get_user_taste_weights, update_taste_weight } = require('./neo4j_diet_plan');
 
@@ -47,7 +47,7 @@ app.post('/upload-and-generate', async (req, res) => {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
-    const prompt = `"Using the food name: ${foodName} and portion size: ${foodQuantity}, analyze the image and provide a nutritional analysis. Do not add uncertainties or ask for more information in any format. If the image is not food, respond with 'Please upload the images of your food.'"`;
+    const prompt = `"Using the food name: ${foodName} and portion size: ${foodQuantity}, analyze the image and provide a nutritional analysis and if you are calculatng calories and stuff make sure you ensure it is based on the food name and the quantity provided in the portion size. Do not add uncertainties or ask for more information in any format. If the image is not an edible food item, respond with 'Please upload the images of your food.'"`;
 
     // Generate content based on the uploaded image
     const result = await model.generateContent([
@@ -69,10 +69,8 @@ app.post('/upload-and-generate', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { gmail } = req.body;
-  console.log('Received request to create taste graph for:', gmail);
   try {
     await create_user_taste_graph(neo4j, gmail);
-    console.log('Taste graph created successfully for:', gmail);
     res.json({ message: 'User registered and taste graph created successfully' });
   } catch (error) {
     console.error('Error creating taste graph:', error);
@@ -82,15 +80,12 @@ app.post('/register', async (req, res) => {
 
 app.get('/get-taste-weights', async (req, res) => {
   const { gmail } = req.query;
-  console.log('Received request for taste weights:', gmail);
   try {
     const weights = await get_user_taste_weights(neo4j, gmail);
-    console.log('Retrieved weights from Neo4j:', weights);
     const weightObject = weights.reduce((acc, { taste, weight }) => {
       acc[taste] = parseFloat(weight);
       return acc;
     }, {});
-    console.log('Sending weight object:', weightObject);
     res.json(weightObject);
   } catch (error) {
     console.error('Error fetching taste weights:', error);

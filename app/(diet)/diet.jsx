@@ -6,55 +6,60 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Diet = () => {
-  
   const [dietPlan, setDietPlan] = useState('');
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     dietexist();
   }, []);
+
   const dietexist = async() => {
     const dietPlan = await AsyncStorage.getItem('dietPlan');
     if (dietPlan) {
       setDietPlan(dietPlan);
     }
   }
+
   const handleGenerateDiet = async () => {
     try {
       setLoading(true);
       const email = await AsyncStorage.getItem('email');
-
+  
       if (!email) {
         throw new Error('Email not found');
       }
       const calculateAge = (birthday) => {
-                const today = new Date();
-                const birthDate = new Date(birthday);
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDifference = today.getMonth() - birthDate.getMonth();
-                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                return age;
-            };
+        const today = new Date();
+        const birthDate = new Date(birthday);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        return age;
+      };
       if (!await AsyncStorage.getItem('dob') || await AsyncStorage.getItem('dob') === 'null') {
         throw new Error('Date of birth not found');
       }
       const age = calculateAge(await AsyncStorage.getItem('dob'));
       const pregnancy = await AsyncStorage.getItem('pregnancy');
-
+  
       AsyncStorage.setItem('age',age.toString());
       const response = await axios.post('http://192.168.222.222:8005/generate-diet-plan', {
         email: email,
-        age: age ,// You might want to store and retrieve the actual age of the user
+        age: age,
         pregnancy: pregnancy
-
       });
       
       setDietPlan(response.data.diet_plan);
-
+  
       AsyncStorage.setItem('dietPlan', response.data.diet_plan);
       AsyncStorage.setItem('weightedPlan', response.data.weighted_plan.toString());
-
+      
+      // Reset meal ratings and completed days when a new diet plan is generated
+      await AsyncStorage.setItem('mealRatings', JSON.stringify({}));
+      await AsyncStorage.setItem('completedDays', JSON.stringify([]));
+  
     } catch (error) {
       console.error('Error generating diet plan:', error);
       alert('Failed to generate diet plan. Please try again.');
