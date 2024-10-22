@@ -73,7 +73,6 @@ const Register = () => {
             await setDoc(userDocRef, docData)
 
         } catch (error) {
-            console.log(error.message)
             if(error.code === 'auth/email-already-in-use'){
                 Alert.alert('Error', 'Email already used')
             }
@@ -110,7 +109,6 @@ const Register = () => {
 
     const handleModalSubmit = async () => {
         setModalVisible(false);
-        console.log('Submitting registration data...');
         try {
             const response = await axios.post('http://192.168.222.222:8000/auth/register', {
                 content_type: 'application/json',
@@ -121,15 +119,13 @@ const Register = () => {
                 pregnancydate: isPregnant ? pregnancyDate.toISOString() : null,
                 childbirthdate: !isPregnant ? childBirthday.toISOString() : null,
             });
-            console.log('Registration response:', response.data);
-
-            // After successful registration, create the taste graph
-            console.log('Creating taste graph...');
+            
             const graphResponse = await axios.post('http://192.168.222.222:3000/register', {
                 gmail: form.email
             });
-            console.log('Taste graph creation response:', graphResponse.data);
-            await AsyncStorage.setItem('dob', isPregnant ? null.toISOString() : childBirthday.toISOString());
+            await AsyncStorage.setItem('dob', isPregnant ? pregnancyDate.toDateString() : childBirthday.toISOString());
+            await AsyncStorage.setItem('pregnancy', isPregnant ? "true":"false");
+            await AsyncStorage.setItem('username',form.UserName)
             Alert.alert('Success', 'Registration successful and taste graph created');
             router.replace('/Login');
         } catch (err) {

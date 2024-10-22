@@ -99,7 +99,6 @@ const Camera = () => {
       });
 
       const finalFileInfo = await FileSystem.getInfoAsync(resizedImageUri, { size: true });
-      console.log(`Final image size: ${finalFileInfo.size / 1024 / 1024} MB`);
 
       const backendUrl = 'http://192.168.222.222:3000/upload-and-generate';
       const response = await fetch(backendUrl, {

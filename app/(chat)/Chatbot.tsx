@@ -38,8 +38,18 @@ const Chatbot = () => {
     }, []);
 
     const fetchData = async () => {
+        const calculateAge = (birthday) => {
+            const today = new Date();
+            const birthDate = new Date(birthday);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        };
         const query_text = chats[chats.length - 1].text;
-        const response = await fetch('http://192.168.222.222:8001/query', {
+        const response = await fetch('http://192.168.222.222:8004/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

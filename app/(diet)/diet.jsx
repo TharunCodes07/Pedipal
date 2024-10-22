@@ -40,18 +40,20 @@ const Diet = () => {
         throw new Error('Date of birth not found');
       }
       const age = calculateAge(await AsyncStorage.getItem('dob'));
+      const pregnancy = await AsyncStorage.getItem('pregnancy');
 
       AsyncStorage.setItem('age',age.toString());
-      
       const response = await axios.post('http://192.168.222.222:8005/generate-diet-plan', {
         email: email,
-        age: 5 // You might want to store and retrieve the actual age of the user
+        age: age ,// You might want to store and retrieve the actual age of the user
+        pregnancy: pregnancy
+
       });
+      
       setDietPlan(response.data.diet_plan);
-      console.log("res",response)
+
       AsyncStorage.setItem('dietPlan', response.data.diet_plan);
       AsyncStorage.setItem('weightedPlan', response.data.weighted_plan.toString());
-      console.log(await AsyncStorage.getItem('weightedPlan'));
 
     } catch (error) {
       console.error('Error generating diet plan:', error);

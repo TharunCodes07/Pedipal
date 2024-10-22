@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Line, Text as SvgText } from 'react-native-svg';
 
@@ -25,9 +25,9 @@ const Graph = () => {
     const storedGmail = await AsyncStorage.getItem('email');
     if (!storedGmail) return;
     try {
-      console.log('Fetching taste weights for:', storedGmail);
+      
       const response = await fetch(`http://192.168.222.222:3000/get-taste-weights?gmail=${encodeURIComponent(storedGmail)}`);
-      console.log('Response status:', response.status);
+
       const data = await response.json();
       console.log('Received data:', data);
       setTasteWeights(data);
@@ -112,11 +112,13 @@ const Graph = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" />
       <LinearGradient
         colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-        style={styles.container}
-      >
+        style={StyleSheet.absoluteFillObject}
+      />
+      <SafeAreaView style={styles.safeArea}>
         <View style={styles.contentContainer}>
           <Text style={styles.title}>Taste Preferences</Text>
           {tasteWeights ? renderGraph() : <Text style={styles.loadingText}>Loading...</Text>}
@@ -143,23 +145,24 @@ const Graph = () => {
             </TouchableOpacity>
           )}
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   contentContainer: {
+    flex: 1,
     width: '90%',
     alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   title: {
     fontSize: 28,

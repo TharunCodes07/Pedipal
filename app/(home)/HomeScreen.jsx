@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {router} from 'expo-router';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, StatusBar, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
-  const [username, setUsername] = useState('John Doe');
-  const [email, setEmail] = useState('john@example.com');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [childBirthday, setChildBirthday] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const storedUsername = await AsyncStorage.getItem('username');
         const storedEmail = await AsyncStorage.getItem('email');
+        const storedChildBirthday = await AsyncStorage.getItem('childBirthday');
         if (storedUsername) setUsername(storedUsername);
         if (storedEmail) setEmail(storedEmail);
+        if (storedChildBirthday) setChildBirthday(new Date(storedChildBirthday));
       } catch (error) {
         console.error('Failed to fetch user data from AsyncStorage', error);
       }
@@ -37,14 +42,28 @@ const HomeScreen = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('username');
-      await AsyncStorage.removeItem('email');
-      await AsyncStorage.removeItem('isLoggedIn');
-      console.log('Logging out...');
+      await AsyncStorage.multiRemove(['isLoggedIn', 'dietPlan']);
       setProfileModalVisible(false);
-      router.replace('/Login'); 
+      router.replace('/Login');
     } catch (error) {
       console.error('Failed to logout', error);
+    }
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || childBirthday;
+    setShowDatePicker(Platform.OS === 'ios');
+    setChildBirthday(currentDate);
+  };
+
+  const saveChildBirthday = async () => {
+    try {
+      await AsyncStorage.setItem('childBirthday', childBirthday.toISOString());
+      await AsyncStorage.setItem('pregnancy', 'false');
+      alert('Child\'s birthday saved successfully!');
+    } catch (error) {
+      console.error('Failed to save child\'s birthday', error);
+      alert('Failed to save child\'s birthday. Please try again.');
     }
   };
 
@@ -99,6 +118,24 @@ const HomeScreen = () => {
                 <Text style={styles.modalTitle}>Profile</Text>
                 <Text style={styles.modalText}>Username: {username}</Text>
                 <Text style={styles.modalText}>Email: {email}</Text>
+                <Text style={styles.modalText}>Child's Birthday:</Text>
+                <TouchableOpacity 
+                  style={styles.dateButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.dateButtonText}>{childBirthday.toDateString()}</Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={childBirthday}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                )}
+                <TouchableOpacity style={styles.saveButton} onPress={saveChildBirthday}>
+                  <Text style={styles.saveButtonText}>Save Child's Birthday</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                   <Text style={styles.logoutButtonText}>Logout</Text>
                 </TouchableOpacity>
@@ -206,6 +243,28 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: 'white',
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dateButton: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  saveButton: {
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

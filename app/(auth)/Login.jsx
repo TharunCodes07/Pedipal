@@ -23,15 +23,14 @@ const Login = () => {
       const taste_weights = await axios.get('http://192.168.222.222:3000/get-taste-weights', {
         params: { gmail: form.email },
       });
-      console.log('Taste weights:', taste_weights.data);
+
 
 
       if (response) {
         Alert.alert('Success', 'Sign-In successful');
         await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
         await AsyncStorage.setItem('email', form.email);
-        console.log('response', response);
-        console.log('user', response.user);
+
         router.replace('/HomeScreen');
       } else {
         throw new Error('Invalid response from server');
