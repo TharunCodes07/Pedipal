@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Diet = () => {
   
@@ -26,7 +26,23 @@ const Diet = () => {
       if (!email) {
         throw new Error('Email not found');
       }
+      const calculateAge = (birthday) => {
+                const today = new Date();
+                const birthDate = new Date(birthday);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            };
+      if (!await AsyncStorage.getItem('dob') || await AsyncStorage.getItem('dob') === 'null') {
+        throw new Error('Date of birth not found');
+      }
+      const age = calculateAge(await AsyncStorage.getItem('dob'));
 
+      AsyncStorage.setItem('age',age.toString());
+      
       const response = await axios.post('http://192.168.222.222:8005/generate-diet-plan', {
         email: email,
         age: 5 // You might want to store and retrieve the actual age of the user

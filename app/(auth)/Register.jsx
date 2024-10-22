@@ -1,12 +1,12 @@
-import React, {useState} from "react";
-import {Image, ScrollView, Text, TextInput, TouchableOpacity, View, Platform, Alert, Modal} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {icons} from "../../constants";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import {Link, router} from "expo-router";
-import Loader from "../../components/Loader";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import axios from "axios";
+import { Link, router } from "expo-router";
+import React, { useState } from "react";
+import { Alert, Image, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Loader from "../../components/Loader";
+import { icons } from "../../constants";
 
 const Register = () => {
     const [loading, setLoading] = useState(false)
@@ -129,18 +129,7 @@ const Register = () => {
                 gmail: form.email
             });
             console.log('Taste graph creation response:', graphResponse.data);
-            const calculateAge = (birthday) => {
-                const today = new Date();
-                const birthDate = new Date(birthday);
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDifference = today.getMonth() - birthDate.getMonth();
-                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                return age;
-            };
-            const age = calculateAge(childBirthday);
-            AsyncStorage.setItem('user_details', JSON.stringify({'email': form.email, 'age': age}));
+            await AsyncStorage.setItem('dob', isPregnant ? null.toISOString() : childBirthday.toISOString());
             Alert.alert('Success', 'Registration successful and taste graph created');
             router.replace('/Login');
         } catch (err) {

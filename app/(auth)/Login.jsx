@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { icons } from '../../constants';
-import { Link, router } from 'expo-router';
-import axios from 'axios';
-import Loader from '../../components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { query } from '@firebase/firestore';
+import axios from 'axios';
+import { Link, router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Loader from '../../components/Loader';
+import { icons } from '../../constants';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -21,7 +20,7 @@ const Login = () => {
         username: form.email,
         password: form.password,
       });
-      const taste_weights = await axios.get('http://192.168.106.143:3000/get-taste-weights', {
+      const taste_weights = await axios.get('http://192.168.222.222:3000/get-taste-weights', {
         params: { gmail: form.email },
       });
       console.log('Taste weights:', taste_weights.data);

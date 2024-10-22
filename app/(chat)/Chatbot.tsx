@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { TouchableOpacity, StatusBar, ScrollView, SafeAreaView, Text, TextInput, View, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from 'react';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import LoadingDots from './LoadingDots';
 
 enum Role {
