@@ -43,8 +43,6 @@ def update_taste_weight(conn, user_id, taste_category, review_score):
     conn.query(update_weight_query, parameters={"user_id": user_id, "taste_category": taste_category, "weight_change": weight_change})
 
 
-update_taste_weight(conn, "user_123", "bitter", 1)  
-
 
 import random
 import math

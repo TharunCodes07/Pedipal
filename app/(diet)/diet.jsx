@@ -55,7 +55,6 @@ const Diet = () => {
   
       AsyncStorage.setItem('dietPlan', response.data.diet_plan);
       AsyncStorage.setItem('weightedPlan', response.data.weighted_plan.toString());
-      
       // Reset meal ratings and completed days when a new diet plan is generated
       await AsyncStorage.setItem('mealRatings', JSON.stringify({}));
       await AsyncStorage.setItem('completedDays', JSON.stringify([]));
