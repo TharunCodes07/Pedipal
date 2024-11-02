@@ -5,7 +5,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
 llm = ChatGroq(
-    groq_api_key='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',
+    groq_api_key='',
     model_name='llama3-70b-8192'
 )
 
