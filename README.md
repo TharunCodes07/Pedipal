@@ -57,7 +57,7 @@ The following APIs and libraries are used to power Pedipal's advanced features:
 
 ```bash
 git clone https://github.com/TharunCodes07/Pedipal
-cd pedipal
+cd Pedipal
 
 ```
 
