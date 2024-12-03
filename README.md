@@ -36,6 +36,8 @@ Provide detailed nutritional value of the identified food item.
 
 - Neo4j: To store taste preferences of the user.
 
+<img src="https://i.postimg.cc/j2mZbyfp/graph.png" alt="PediPal Image" style="display: block; margin-left: auto; margin-right: auto; width: 40%; height: auto;"/>
+
 ## API Reference
 
 The following APIs and libraries are used to power Pedipal's advanced features:
