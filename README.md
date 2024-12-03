@@ -1,5 +1,5 @@
-[![IMG-20241023-021706.jpg](https://i.postimg.cc/wBSctJ96/IMG-20241023-021706.jpg)](https://postimg.cc/nsGQgXs5)
 # PediPal : A Pediatrician App for Mothers and Pregnant Women
+<img align="centre" height="50" width="50" src="https://i.postimg.cc/wBSctJ96/IMG-20241023-021706.jpg" alt="Pedipal Screenshot"/>
 
 Pedipal is an innovative mobile application designed to support mothers and pregnant women with reliable, personalized healthcare assistance. Built with React Native, MongoDB, Gemini API, Llama, QRoq, and Neo4j, Pedipal provides a holistic experience to its users through advanced AI-driven features.
 ## Features
