@@ -56,7 +56,7 @@ The following APIs and libraries are used to power Pedipal's advanced features:
 1. Clone the repository.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/TharunCodes07/Pedipal
 cd pedipal
 
 ```
