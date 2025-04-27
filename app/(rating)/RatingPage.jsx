@@ -91,7 +91,7 @@ const RatingPage = () => {
                     [taste.toLowerCase()]: numericRating
                 };
 
-                await axios.post('http://192.168.250.222:3000/update-taste-weights', {
+                await axios.post('http://your-ip:3000/update-taste-weights', {
                     gmail: email,
                     tasteWeights
                 });

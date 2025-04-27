@@ -58,7 +58,7 @@ const Chatbot = () => {
             childBirthday: !isPregnant ? dateOfBirth : null
         };
         console.log('Request body:', JSON.stringify(requestBody, null, 2));
-        const response = await fetch('http://192.168.250.222:8004/query', {
+        const response = await fetch('http://your-ip:8004/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

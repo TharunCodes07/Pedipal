@@ -1,50 +1,141 @@
-# Welcome to your Expo app 👋
+# PediPal : A Pediatrician App for Mothers and Pregnant Women
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<img src="https://i.postimg.cc/wBSctJ96/IMG-20241023-021706.jpg" alt="PediPal Image" style="display: block; margin-left: auto; margin-right: auto; width: 40%; height: auto;"/>
 
-## Get started
+Pedipal is an innovative mobile application designed to support mothers and pregnant women with reliable, personalized healthcare assistance. Built with React Native, MongoDB, Gemini API, Llama, QRoq, and Neo4j, Pedipal provides a holistic experience to its users through advanced AI-driven features.
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+1. #### Intelligent Chatbot (RAG-Based)
 
-2. Start the app
+   A conversational assistant that uses Retrieval-Augmented Generation (RAG) to answer user queries about health, nutrition, and childcare.
+   Provides accurate and relevant responses by retrieving up-to-date information and generating personalized answers.
 
-   ```bash
-    npx expo start
-   ```
+2. #### Personalized Diet Generator
 
-In the output, you'll find options to open the app in a
+   Dynamically generates diet plans tailored to the user's taste preferences.
+   Features include:
+   Taste Preference Tracking: Records user feedback and updates taste preferences using weighted algorithms.
+   Adaptive Recommendations: Regular updates ensure recommendations align with user preferences over time.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+3. #### Image-Based Nutrient Detector
+   Users can upload images of food, and the app analyzes them to:
+   Identify if the item is food.
+   Provide detailed nutritional value of the identified food item.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+<img src="https://i.postimg.cc/F1tm6h5b/Picsart-24-12-03-19-54-54-289.png" alt="PediPal Image" style="display: block; margin-left: auto; margin-right: auto; width: 60%; height: auto;"/>
 
-## Get a fresh project
+## Tech Stack
 
-When you're ready, run:
+**Frontend**
+
+- React Native: For building a seamless and cross-platform mobile experience.
+
+**Backend**
+
+- FastAPI: To create efficient and scalable RESTful APIs for handling requests.
+
+- MongoDB: To store user data and weekly taste pallet that was generated.
+
+- Neo4j: To store taste preferences of the user.
+
+<img src="https://i.postimg.cc/j2mZbyfp/graph.png" alt="PediPal Image" style="display: block; margin-left: auto; margin-right: auto; width: 40%; height: auto;"/>
+
+## API Reference
+
+The following APIs and libraries are used to power Pedipal's advanced features:
+
+#### Core APIs and Tools
+
+- FastAPI: Efficient backend framework for API development.
+- Groq API: Used for fast retrieval of responses from the llm.
+- Gemini API: Used for accurate food nutrient detection from images.
+
+## Installation
+
+#### Prerequisites:
+
+- Node.js (v14 or above)
+- MongoDB
+- Neo4j Database
+- Python 3.9 or above (for FastAPI)
+
+#### Steps to Run
+
+1. Clone the repository.
 
 ```bash
-npm run reset-project
+git clone https://github.com/TharunCodes07/Pedipal
+cd Pedipal
+
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies for both the frontend and backend:
 
-## Learn more
+```bash
+npm install
 
-To learn more about developing your project with Expo, look at the following resources:
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+3. Create a Neo4j Database, start a project and update your credentials
 
-## Join the community
+```
+# ./backend/graph.py
 
-Join our community of developers creating universal apps.
+conn = Neo4jConnection(uri="your url", user="name", password="your password")
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4. Create a MongoDB collection and update your Database
+
+```
+# ./backend/database.py
+
+MONGO_DETAILS = "mongodb://localhost:27017/"
+
+```
+
+5. Create a .env inside ./backend folder and update your API keys
+
+```
+GROQ_API_KEY=
+GEMINI_API_KEY=
+```
+
+6. Update API endpoint
+
+```
+# Search for your-ip and replace them with your IP address
+```
+
+7. Start the app and backend servers on separate terminals
+
+```
+npx expo start
+```
+
+```
+cd backend
+node app.js
+```
+
+```
+cd backend
+python main-auth.js
+```
+
+```
+cd backend
+python main-chat.py
+```
+
+```
+cd backend
+python main-graph.py
+```
+
+## Usage/Examples
+
+- Login/Sign Up: Users create an account or log in to access personalized features.
+- Chatbot Assistance: Use the chatbot to ask questions about pregnancy, child health, or nutrition.
+- Diet Generator: Provide feedback on your dietary preferences and receive customized meal plans.
+- Nutrient Analysis: Upload food images to view nutritional information.

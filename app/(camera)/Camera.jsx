@@ -99,7 +99,7 @@ const Camera = () => {
 
       const finalFileInfo = await FileSystem.getInfoAsync(resizedImageUri, { size: true });
 
-      const backendUrl = 'http://192.168.250.222:3000/upload-and-generate';
+      const backendUrl = 'http://your-ip:3000/upload-and-generate';
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: {

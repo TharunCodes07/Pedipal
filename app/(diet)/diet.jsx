@@ -45,7 +45,7 @@ const Diet = () => {
       const pregnancy = await AsyncStorage.getItem('pregnancy');
   
       AsyncStorage.setItem('age',age.toString());
-      const response = await axios.post('http://192.168.250.222:8005/generate-diet-plan', {
+      const response = await axios.post('http://your-ip:8005/generate-diet-plan', {
         email: email,
         age: age,
         pregnancy: pregnancy

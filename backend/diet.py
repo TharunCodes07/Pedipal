@@ -3,11 +3,13 @@ from groq import Groq
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import dotenv
 
+dotenv.load_dotenv()
 
 llm = ChatGroq(
-    groq_api_key='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',
-    model_name='llama3-70b-8192'
+    groq_api_key=os.getenv("GROQ_API_KEY"),
+    model_name='llama-3.3-70b-versatile'
 )
 
 def get_template(age,isPregnant):

@@ -26,7 +26,7 @@ const Graph = () => {
     if (!storedGmail) return;
     try {
       
-      const response = await fetch(`http://192.168.250.222:3000/get-taste-weights?gmail=${encodeURIComponent(storedGmail)}`);
+      const response = await fetch(`http://your-ip:3000/get-taste-weights?gmail=${encodeURIComponent(storedGmail)}`);
 
       const data = await response.json();
       console.log('Received data:', data);
@@ -43,7 +43,7 @@ const Graph = () => {
   const saveWeights = async () => {
     const storedGmail = await AsyncStorage.getItem('email');
     try {
-      const response = await fetch('http://192.168.250.222:3000/update-taste-weights', {
+      const response = await fetch('http://your-ip:3000/update-taste-weights', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

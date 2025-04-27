@@ -15,12 +15,12 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.250.222:8000/auth/login', { 
+      const response = await axios.post('http://your-ip:8000/auth/login', { 
         content_type: 'application/json',
         username: form.email,
         password: form.password,
       });
-      const taste_weights = await axios.get('http://192.168.250.222:3000/get-taste-weights', {
+      const taste_weights = await axios.get('http://your-ip:3000/get-taste-weights', {
         params: { gmail: form.email },
       });
 

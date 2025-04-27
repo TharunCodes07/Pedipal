@@ -110,7 +110,7 @@ const Register = () => {
     const handleModalSubmit = async () => {
         setModalVisible(false);
         try {
-            const response = await axios.post('http://192.168.250.222:8000/auth/register', {
+            const response = await axios.post('http://your-ip:8000/auth/register', {
                 content_type: 'application/json',
                 email: form.email,
                 username: form.UserName,
@@ -120,7 +120,7 @@ const Register = () => {
                 childbirthdate: !isPregnant ? childBirthday.toISOString() : null,
             });
             
-            const graphResponse = await axios.post('http://192.168.250.222:3000/register', {
+            const graphResponse = await axios.post('http://your-ip:3000/register', {
                 gmail: form.email
             });
             await AsyncStorage.setItem('dob', isPregnant ? pregnancyDate.toDateString() : childBirthday.toISOString());
